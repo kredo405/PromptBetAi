@@ -89,26 +89,35 @@ export default function MatchPage() {
     setState(prev => ({ ...prev, [field]: value }));
   };
 
-  const getPredict = () => {
-    setResult(generateAiPrompt(
-      state.homeTeamName,
-      state.awayTeamName,
-      state.lastMatchesHome,
-      state.rateHome,
-      state.strengthsHome,
-      state.weaknessesHome,
-      state.playStyleHome,
-      state.lastMatchesAway,
-      state.rateAway,
-      state.strengthsAway,
-      state.weaknessesAway,
-      state.playStyleAway,
-      state.lastMatchesH2h,
-      state.description,
-      state.odds,
-      preview
-    ))
-  }
+  const getPredict = async () => {
+    setIsLoading(true);
+    try {
+      const prompt = generateAiPrompt(
+        state.homeTeamName,
+        state.awayTeamName,
+        state.lastMatchesHome,
+        state.rateHome,
+        state.strengthsHome,
+        state.weaknessesHome,
+        state.playStyleHome,
+        state.lastMatchesAway,
+        state.rateAway,
+        state.strengthsAway,
+        state.weaknessesAway,
+        state.playStyleAway,
+        state.lastMatchesH2h,
+        state.description,
+        state.odds,
+        preview
+      );
+      const response = await apiService.gemini(prompt);
+      setResult(response.response);
+    } catch (error) {
+      showError(`Failed to generate prediction: ${error}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
 
@@ -205,7 +214,7 @@ export default function MatchPage() {
               Сгенерировать AI прогноз
             </button>
             <p className="text-gray-400 mt-6 text-center max-w-md">
-              На основе всех введенных данных будет создан подробный промт для анализа матча с рекомендациями по ставкам.
+              На основе всех введенных данных будет создан подробный прогноз для матча с рекомендациями по ставкам.
             </p>
           </div>
         </div>
@@ -269,7 +278,7 @@ export default function MatchPage() {
         </div>
 
         {result && (
-          <CustomCard title="Сгенерированный промт для AI">
+          <CustomCard title="Сгенерированный AI Прогноз">
             <div className="relative">
               <button
                 onClick={() => navigator.clipboard.writeText(result)}

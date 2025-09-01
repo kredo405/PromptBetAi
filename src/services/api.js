@@ -113,6 +113,26 @@ class ApiService {
       throw error; // Пробрасываем ошибку для обработки в try...catch
     }
   }
+  async gemini(prompt) {
+  const options = {
+    method: "POST",
+    url: `http://localhost:8000/chat/`,
+    headers: { "Content-Type": "application/json" },
+    data: { 
+      contents: [{
+        parts: [{ text: prompt }]
+      }]
+    }, // Отправляем JSON-объект
+  };
+
+  try {
+    const response = await axios.request(options);
+    return response.data;
+  } catch (error) {
+    console.error("Ошибка при запросе к вашему серверу:", error);
+    throw error;
+  }
+}
 }
 // Создание экземпляра класса
 const apiService = new ApiService("https://kredo-bet-api.vercel.app/");
