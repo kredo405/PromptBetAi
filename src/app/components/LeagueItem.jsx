@@ -1,10 +1,9 @@
 export const LeagueItem = ({
   league,
   matchElements,
-  key,
 }) => {
   return (
-    <div key={key}>
+    <div>
       <div className="mb-2 p-2">
         <div className="w-full h-14 flex justify-between items-center bg-slate-800 mb-2">
           <div className="flex items-center ml-2 w-full">

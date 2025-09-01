@@ -1,35 +1,18 @@
-import { Modal } from 'antd';
-
 export const ErrorModal = ({ message, visible, onOk }) => {
   if (!visible) return null;
 
   return (
-    <Modal
-      title={<span className="text-red-400 text-xl font-semibold">Ошибка</span>}
-      visible={visible}
-      onOk={onOk}
-      onCancel={onOk}
-      closable={false}
-      centered
-      styles={{
-        content: { 
-          backgroundColor: 'rgba(15, 23, 42, 0.9)',
-          border: '1px solid rgba(255, 0, 0, 0.3)',
-          backdropFilter: 'blur(10px)',
-        },
-        header: { 
-          backgroundColor: 'transparent',
-          borderBottom: '1px solid rgba(255, 0, 0, 0.2)',
-        },
-        body: { 
-          color: 'white',
-        },
-        footer: {
-          borderTop: '1px solid rgba(255, 0, 0, 0.2)',
-        }
-      }}
-    >
-      <p className="text-lg">{message}</p>
-    </Modal>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
+      <div className="bg-slate-800 border border-red-500/50 rounded-lg shadow-xl p-6 max-w-sm w-full">
+        <h3 className="text-red-400 text-xl font-semibold mb-4">Ошибка</h3>
+        <p className="text-white mb-6">{message}</p>
+        <button
+          onClick={onOk}
+          className="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300"
+        >
+          Закрыть
+        </button>
+      </div>
+    </div>
   );
 };
