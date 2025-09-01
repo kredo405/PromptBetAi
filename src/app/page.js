@@ -89,7 +89,7 @@ export default function Home() {
   );
 
   return (
-    <div className="h-full">
+    <div className="h-full bg-slate-800">
       <Header />
       <div>
         <div className="container mx-auto lg:px-44 pt-10 pb-10">
@@ -100,7 +100,7 @@ export default function Home() {
               <div className="mb-10 px-3">
                 <form>
                   <input
-                    className="rounded-lg w-full md:w-5/12 px-3 py-2"
+                    className="rounded-lg w-full md:w-5/12 px-3 py-2 bg-slate-700"
                     placeholder="Введите название страны"
                     type="search"
                     name="search"

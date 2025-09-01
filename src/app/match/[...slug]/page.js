@@ -13,10 +13,6 @@ import { ErrorModal } from '@/app/components/ErrorModal';
 import { generateAiPrompt } from '@/app/utils/promt'
 import { TeamCard } from '@/app/components/TeamCard'
 import { useState } from 'react'
-import {
-  EditOutlined,
-  CopyOutlined
-} from "@ant-design/icons";
 
 
 
@@ -176,7 +172,6 @@ export default function MatchPage() {
       key: '1',
       label: (
         <span className="text-cyan-200 text-xl font-semibold tracking-wider">
-          <EditOutlined className="mr-3" />
           Дополнительные параметры анализа
         </span>
       ),
@@ -260,12 +255,12 @@ export default function MatchPage() {
             onClick={() => setIsCollapseOpen(!isCollapseOpen)}
             className="w-full flex justify-between items-center p-4 text-cyan-200 text-xl font-semibold tracking-wider"
           >
-            <span>
-              <EditOutlined className="mr-3" />
+            <span className="flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 mr-4 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
               Дополнительные параметры анализа
             </span>
             <span className={`transform transition-transform duration-300 ${isCollapseOpen ? 'rotate-180' : ''}`}>
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </span>
@@ -278,9 +273,9 @@ export default function MatchPage() {
             <div className="relative">
               <button
                 onClick={() => navigator.clipboard.writeText(result)}
-                className="absolute top-2 right-2 flex items-center text-cyan-300 border border-cyan-300 hover:text-white hover:border-white transition-colors duration-300 px-3 py-1 rounded-lg"
+                className="absolute top-2 right-2 flex items-center text-cyan-300 border border-cyan-300 hover:text-white hover:border-white transition-colors duration-300 px-4 py-2 rounded-lg"
               >
-                <CopyOutlined className="mr-2" />
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
                 Скопировать
               </button>
               <div className="whitespace-pre-wrap text-gray-200 bg-gray-900/80 p-6 rounded-lg overflow-x-auto max-h-[600px] overflow-y-auto font-mono text-sm leading-relaxed">
