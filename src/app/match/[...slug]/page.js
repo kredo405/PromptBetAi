@@ -2,9 +2,8 @@
 
 import { useEffect } from 'react'
 import { useParams } from 'next/navigation'
-import { useAppDispatch, useAppSelector } from '../../../lib/hooks'
+import { useAppDispatch } from '../../../lib/hooks'
 import { setCurrentLink } from '../../../lib/features/link/linkSlice'
-import { setLeagueTable, setMatches, setTeams, setOutcomes } from '../../../lib/features/statistics/statisticsSlice'
 import apiService from '../../../services/api';
 import Header from '@/app/components/Header'
 import { Loading } from '@/app/components/Loading'
@@ -24,7 +23,7 @@ const removeAllTags = (str) => {
 function formatOdds(odds) {
   const result = [];
 
-  // Перебираем все категории ставок (например, both_to_score, corners_one_x_two)
+  // Перебираем все категории ставок
   for (const [category, outcomes] of Object.entries(odds)) {
     // Игнорируем служебные свойства
     if (category === '__proto__' || outcomes === null || typeof outcomes !== 'object') continue;
@@ -77,6 +76,7 @@ export default function MatchPage() {
     playStyleHome: "",
     playStyleAway: "",
     description: "",
+    expertOpinions: [],
     rateHome: "",
     rateAway: "",
     momentPredict: "",
@@ -87,6 +87,16 @@ export default function MatchPage() {
 
   const handleInputChange = (field, value) => {
     setState(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleAddOpinion = () => {
+    if (state.description.trim()) {
+      setState(prev => ({
+        ...prev,
+        expertOpinions: [...prev.expertOpinions, prev.description],
+        description: ""
+      }));
+    }
   };
 
   const getPredict = async () => {
@@ -106,7 +116,7 @@ export default function MatchPage() {
         state.weaknessesAway,
         state.playStyleAway,
         state.lastMatchesH2h,
-        state.description,
+        state.expertOpinions.join("; "),
         state.odds,
         preview
       );
@@ -172,7 +182,8 @@ export default function MatchPage() {
 
       fetchData();
     }
-  }, [slug])
+  }, [slug, dispatch])
+
 
   const [isCollapseOpen, setIsCollapseOpen] = useState(false);
 
@@ -204,6 +215,25 @@ export default function MatchPage() {
               onChange={(e) => handleInputChange("description", e.target.value)}
               className="w-full pl-4 pr-4 py-2 bg-gray-800/70 border border-cyan-400/30 rounded-lg text-white placeholder-gray-400 focus:ring-cyan-500 focus:border-cyan-500 transition-all"
             />
+            <button
+              onClick={handleAddOpinion}
+              className="mt-4 bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
+            >
+              Добавить
+            </button>
+
+            {state.expertOpinions.length > 0 && (
+              <div className="mt-6">
+                <h4 className="text-cyan-300 mb-2 text-md font-semibold">Добавленные мнения:</h4>
+                <ul className="space-y-2">
+                  {state.expertOpinions.map((opinion, index) => (
+                    <li key={index} title={opinion} className="bg-gray-800/50 p-3 rounded-lg border border-cyan-400/20 text-white whitespace-nowrap overflow-hidden text-ellipsis cursor-pointer">
+                      {opinion}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
 
           <div className="flex flex-col justify-center items-center bg-white/5 p-8 rounded-lg border border-cyan-400/20">
