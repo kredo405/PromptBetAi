@@ -9,16 +9,11 @@ import Header from '@/app/components/Header'
 import { Loading } from '@/app/components/Loading'
 import { CustomCard } from '@/app/components/CustomCard';
 import { ErrorModal } from '@/app/components/ErrorModal';
+import { PromptModal } from '@/app/components/PromptModal';
 import { generateAiPrompt } from '@/app/utils/promt'
 import { TeamCard } from '@/app/components/TeamCard'
 import { useState } from 'react'
 
-
-
-const removeAllTags = (str) => {
-  if (!str) return "";
-  return str.replace(/<[^>]*>/g, "");
-};
 
 function formatOdds(odds) {
   const result = [];
@@ -61,7 +56,6 @@ export default function MatchPage() {
   };
 
   const [isLoading, setIsLoading] = useState(false)
-  const [preview, setPreview] = useState("")
   const [homeLogo, setHomeLogo] = useState("")
   const [awayLogo, setAwayLogo] = useState("")
   const [state, setState] = useState({
@@ -77,13 +71,21 @@ export default function MatchPage() {
     playStyleAway: "",
     description: "",
     expertOpinions: [],
+    trend: "",
+    trends: [],
+    newsItem: "",
+    news: [],
     rateHome: "",
     rateAway: "",
-    momentPredict: "",
+    momentPredictHome: "",
+    momentPredictAway: "",
     homeTeamName: '',
-    awayTeamName: ""
+    awayTeamName: "",
+    matchDescription: ""
   });
   const [result, setResult] = useState("")
+  const [promptForModal, setPromptForModal] = useState("");
+  const [isPromptModalVisible, setIsPromptModalVisible] = useState(false);
 
   const handleInputChange = (field, value) => {
     setState(prev => ({ ...prev, [field]: value }));
@@ -99,6 +101,26 @@ export default function MatchPage() {
     }
   };
 
+  const handleAddTrend = () => {
+    if (state.trend.trim()) {
+      setState(prev => ({
+        ...prev,
+        trends: [...prev.trends, prev.trend],
+        trend: ""
+      }));
+    }
+  };
+
+  const handleAddNews = () => {
+    if (state.newsItem.trim()) {
+      setState(prev => ({
+        ...prev,
+        news: [...prev.news, prev.newsItem],
+        newsItem: ""
+      }));
+    }
+  };
+
   const getPredict = async () => {
     setIsLoading(true);
     try {
@@ -110,13 +132,18 @@ export default function MatchPage() {
         state.strengthsHome,
         state.weaknessesHome,
         state.playStyleHome,
+        state.momentPredictHome,
         state.lastMatchesAway,
         state.rateAway,
         state.strengthsAway,
         state.weaknessesAway,
         state.playStyleAway,
+        state.momentPredictAway,
+        state.matchDescription,
         state.lastMatchesH2h,
         state.expertOpinions.join("; "),
+        state.trends.join("; "),
+        state.news.join("; "),
         state.odds,
         preview
       );
@@ -127,6 +154,31 @@ export default function MatchPage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const showPromptModal = () => {
+    const prompt = generateAiPrompt(
+      state.homeTeamName,
+      state.awayTeamName,
+      state.lastMatchesHome,
+      state.rateHome,
+      state.strengthsHome,
+      state.weaknessesHome,
+      state.playStyleHome,
+      state.lastMatchesAway,
+      state.rateAway,
+      state.strengthsAway,
+      state.weaknessesAway,
+      state.playStyleAway,
+      state.lastMatchesH2h,
+      state.matchDescription,
+      state.expertOpinions.join("; "),
+      state.trends.join("; "),
+      state.news.join("; "),
+      state.odds,
+    );
+    setPromptForModal(prompt);
+    setIsPromptModalVisible(true);
   };
 
   useEffect(() => {
@@ -157,12 +209,6 @@ export default function MatchPage() {
 
           setHomeLogo(statsData.teams.home.logo)
           setAwayLogo(statsData.teams.away.logo)
-          console.log(statsData)
-          const preview = await apiService.getPreview({
-            link: link,
-          });
-          console.log(removeAllTags(preview.preview.data.prediction));
-          setPreview(removeAllTags(preview.preview.data.prediction));
 
           const oddsResponse = await apiService.getOdds({ link: link });
           const odds = oddsResponse.odds.data.odds;
@@ -198,16 +244,16 @@ export default function MatchPage() {
       children: (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-4">
           <div className="bg-white/5 backdrop-blur-sm border border-cyan-400/20 p-6 rounded-lg">
-            <h3 className="text-cyan-300 mb-4 text-lg font-semibold">Прогноз ключевых моментов</h3>
+            <h3 className="text-cyan-300 mb-4 text-lg font-semibold">Описание матча</h3>
             <textarea
               rows={4}
-              placeholder="Опишите ключевые моменты матча (голевые моменты, стандарты, тактика и т.д.)"
-              value={state.momentPredict}
-              onChange={(e) => handleInputChange("momentPredict", e.target.value)}
-              className="w-full pl-4 pr-4 py-2 bg-gray-800/70 border border-cyan-400/30 rounded-lg text-white placeholder-gray-400 focus:ring-cyan-500 focus:border-cyan-500 transition-all mb-6"
+              placeholder="Добавьте описание матча"
+              value={state.matchDescription}
+              onChange={(e) => handleInputChange("matchDescription", e.target.value)}
+              className="w-full pl-4 pr-4 py-2 bg-gray-800/70 border border-cyan-400/30 rounded-lg text-white placeholder-gray-400 focus:ring-cyan-500 focus:border-cyan-500 transition-all"
             />
 
-            <h3 className="text-cyan-300 mb-4 text-lg font-semibold">Экспертное мнение</h3>
+            <h3 className="text-cyan-300 mb-4 text-lg font-semibold mt-6">Экспертное мнение</h3>
             <textarea
               rows={4}
               placeholder="Добавьте описание матча и ваше мнение"
@@ -234,15 +280,79 @@ export default function MatchPage() {
                 </ul>
               </div>
             )}
+
+            <h3 className="text-cyan-300 mb-4 text-lg font-semibold mt-6">Тренды</h3>
+            <textarea
+              rows={4}
+              placeholder="Добавьте тренд"
+              value={state.trend}
+              onChange={(e) => handleInputChange("trend", e.target.value)}
+              className="w-full pl-4 pr-4 py-2 bg-gray-800/70 border border-cyan-400/30 rounded-lg text-white placeholder-gray-400 focus:ring-cyan-500 focus:border-cyan-500 transition-all"
+            />
+            <button
+              onClick={handleAddTrend}
+              className="mt-4 bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
+            >
+              Добавить
+            </button>
+
+            {state.trends.length > 0 && (
+              <div className="mt-6">
+                <h4 className="text-cyan-300 mb-2 text-md font-semibold">Добавленные тренды:</h4>
+                <ul className="space-y-2">
+                  {state.trends.map((trend, index) => (
+                    <li key={index} title={trend} className="bg-gray-800/50 p-3 rounded-lg border border-cyan-400/20 text-white whitespace-nowrap overflow-hidden text-ellipsis cursor-pointer">
+                      {trend}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <h3 className="text-cyan-300 mb-4 text-lg font-semibold mt-6">Новости</h3>
+            <textarea
+              rows={4}
+              placeholder="Добавьте новость"
+              value={state.newsItem}
+              onChange={(e) => handleInputChange("newsItem", e.target.value)}
+              className="w-full pl-4 pr-4 py-2 bg-gray-800/70 border border-cyan-400/30 rounded-lg text-white placeholder-gray-400 focus:ring-cyan-500 focus:border-cyan-500 transition-all"
+            />
+            <button
+              onClick={handleAddNews}
+              className="mt-4 bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-lg transition-colors"
+            >
+              Добавить
+            </button>
+
+            {state.news.length > 0 && (
+              <div className="mt-6">
+                <h4 className="text-cyan-300 mb-2 text-md font-semibold">Добавленные новости:</h4>
+                <ul className="space-y-2">
+                  {state.news.map((news, index) => (
+                    <li key={index} title={news} className="bg-gray-800/50 p-3 rounded-lg border border-cyan-400/20 text-white whitespace-nowrap overflow-hidden text-ellipsis cursor-pointer">
+                      {news}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
 
           <div className="flex flex-col justify-center items-center bg-white/5 p-8 rounded-lg border border-cyan-400/20">
-            <button
-              onClick={getPredict}
-              className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 h-16 w-full max-w-xs font-bold text-xl shadow-lg rounded-lg transition-all duration-300 transform hover:scale-105 text-white"
-            >
-              Сгенерировать AI прогноз
-            </button>
+            <div className="flex flex-col space-y-4 w-full max-w-xs">
+              <button
+                onClick={getPredict}
+                className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 h-16 w-full font-bold text-xl shadow-lg rounded-lg transition-all duration-300 transform hover:scale-105 text-white"
+              >
+                Сгенерировать AI прогноз
+              </button>
+              <button
+                onClick={showPromptModal}
+                className="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 h-12 w-full font-bold text-lg shadow-lg rounded-lg transition-all duration-300 transform hover:scale-105 text-white"
+              >
+                Показать Промт
+              </button>
+            </div>
             <p className="text-gray-400 mt-6 text-center max-w-md">
               На основе всех введенных данных будет создан подробный прогноз для матча с рекомендациями по ставкам.
             </p>
@@ -256,6 +366,7 @@ export default function MatchPage() {
     <div className="bg-gradient-to-b from-gray-900 via-blue-900 to-gray-900 min-h-screen bg-fixed font-sans text-white">
       <Header />
       <ErrorModal message={error} visible={!!error} onOk={clearError} />
+      <PromptModal prompt={promptForModal} visible={isPromptModalVisible} onOk={() => setIsPromptModalVisible(false)} />
       {isLoading ? <Loading /> : <main className="container mx-auto px-4 py-8 max-w-7xl">
         <CustomCard className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-center text-cyan-200 mb-2 tracking-wider">

@@ -58,6 +58,18 @@ export const TeamCard = ({ team, logo, name, onInputChange, values }) => (
                             className="w-full pl-12 pr-4 py-3 bg-gray-800/70 border border-cyan-400/30 rounded-lg text-white placeholder-gray-400 focus:ring-cyan-500 focus:border-cyan-500 transition-all"
                         />
                     </div>
+                    <div className="relative">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-3 top-3 h-6 w-6 text-cyan-400 group-hover:text-cyan-300 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                        </svg>
+                        <textarea
+                            rows={3}
+                            placeholder="Прогноз ключевых моментов"
+                            value={values[`momentPredict${team}`]}
+                            onChange={(e) => onInputChange(`momentPredict${team}`, e.target.value)}
+                            className="w-full pl-12 pr-4 py-3 bg-gray-800/70 border border-cyan-400/30 rounded-lg text-white placeholder-gray-400 focus:ring-cyan-500 focus:border-cyan-500 transition-all"
+                        />
+                    </div>
                 </div>
             </div>
         </CustomCard>

@@ -64,24 +64,24 @@ export default function Home() {
   const elements =
     filteredMatches.length > 0
       ? filteredMatches.map((el, i) => {
-          const matchElementsFiltered = el.matches.filter(
-            (match) =>
-              (match.predictionStats.total >= 20 &&
-                match.sportSlug === "soccer")
+        const matchElementsFiltered = el.matches.filter(
+          (match) =>
+          (match.predictionStats.total >= 20 &&
+            match.sportSlug === "soccer")
+        );
+
+        if (matchElementsFiltered.length === 0) {
+          return null;
+        } else {
+          const matchElements = matchElementsFiltered.map((item, idx) => (
+            <MatchItem match={item} idx={idx} key={idx} />
+          ));
+
+          return (
+            <LeagueItem league={el} matchElements={matchElements} key={i} />
           );
-
-          if (matchElementsFiltered.length === 0) {
-            return null;
-          } else {
-            const matchElements = matchElementsFiltered.map((item, idx) => (
-              <MatchItem match={item} idx={idx} key={idx} />
-            ));
-
-            return (
-              <LeagueItem league={el} matchElements={matchElements} key={i} />
-            );
-          }
-        })
+        }
+      })
       : [];
 
   const filteredElements = (Array.isArray(elements) ? elements : []).filter(
